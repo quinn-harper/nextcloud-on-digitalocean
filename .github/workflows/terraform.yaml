@@ -17,21 +17,10 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_CLOUD_TOKEN }}
 
-      - name: terraform fmt
-        id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
-
       - name: terraform init
-        id: init
         run: terraform init -no-color
 
-      - name: terraform validate
-        id: validate
-        run: terraform validate -no-color
-
       - name: terraform plan
-        id: plan
         run: terraform plan -no-color
         continue-on-error: true
         env:
@@ -40,40 +29,12 @@ jobs:
           TF_VAR_digitalocean_spaces_access_key: "${{ secrets.DIGITALOCEAN_SPACES_KEY_ID }}"
           TF_VAR_digitalocean_spaces_access_key_secret: "${{ secrets.DIGITALOCEAN_SPACES_KEY_SECRET }}"
 
-      - name: Set summary
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        run: |
-            cat > $GITHUB_STEP_SUMMARY << EOF
-            #### Terraform Format and Style 🖌`${{ steps.fmt.outcome }}`
-            #### Terraform Initialization ⚙️`${{ steps.init.outcome }}`
-            #### Terraform Validation 🤖`${{ steps.validate.outcome }}`
-            <details><summary>Validation Output</summary>
-
-
-            ${{ steps.validate.outputs.stdout }}
-
-
-            </details>
-
-            #### Terraform Plan 📖${{ steps.plan.outcome }}
-
-            <details><summary>Show Plan</summary>
-
-            ```
-            $PLAN
-            ```
-
-            </details>
-            EOF
-
-
   terraform-apply:
     needs: [terraform-plan]
     runs-on: ubuntu-22.04
     environment: production
     if: github.ref_name == 'main'
-    name: Plan Terraform changes
+    name: Apply Terraform changes
     steps:
       - uses: actions/checkout@v3
         name: Checkout repository
@@ -83,18 +44,9 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_CLOUD_TOKEN }}
 
-      - name: terraform fmt
-        id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
-
       - name: terraform init
         id: init
         run: terraform init
-
-      - name: terraform validate
-        id: validate
-        run: terraform validate
 
       - name: terraform plan
         id: plan
@@ -106,35 +58,8 @@ jobs:
           TF_VAR_digitalocean_spaces_access_key: "${{ secrets.DIGITALOCEAN_SPACES_KEY_ID }}"
           TF_VAR_digitalocean_spaces_access_key_secret: "${{ secrets.DIGITALOCEAN_SPACES_KEY_SECRET }}"
 
-      - name: Set summary
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        run: |
-            cat > $GITHUB_STEP_SUMMARY << EOF
-            #### Terraform Format and Style 🖌`${{ steps.fmt.outcome }}`
-            #### Terraform Initialization ⚙️`${{ steps.init.outcome }}`
-            #### Terraform Validation 🤖`${{ steps.validate.outcome }}`
-            <details><summary>Validation Output</summary>
-
-            ```
-            ${{ steps.validate.outputs.stdout }}
-            ```
-
-            </details>
-
-            #### Terraform Plan 📖${{ steps.plan.outcome }}
-
-            <details><summary>Show Plan</summary>
-
-            ```
-            ${process.env.PLAN}
-            ```
-
-            </details>
-            EOF
-
       - name: terraform apply
-        run: terraform apply
+        run: terraform apply -auto-approve
         env:
             TF_VAR_digitalocean_token: "${{ secrets.DIGITALOCEAN_TOKEN }}"
             TF_VAR_digitalocean_ssh_public_key: "${{ secrets.DIGITALOCEAN_SSH_KEY }}"
