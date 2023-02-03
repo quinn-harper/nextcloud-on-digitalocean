@@ -5,10 +5,9 @@ on:
   pull_request:
 
 jobs:
-  terraform:
+  terraform-plan:
     runs-on: ubuntu-22.04
-    environment: production
-    name: Run Terraform
+    name: Plan Terraform changes
     steps:
       - uses: actions/checkout@v3
         name: Checkout repository
@@ -45,7 +44,8 @@ jobs:
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         run: |
-            echo "#### Terraform Format and Style 🖌`${{ steps.fmt.outcome }}`
+            cat > $GITHUB_STEP_SUMMARY << EOF
+            #### Terraform Format and Style 🖌`${{ steps.fmt.outcome }}`
             #### Terraform Initialization ⚙️`${{ steps.init.outcome }}`
             #### Terraform Validation 🤖`${{ steps.validate.outcome }}`
             <details><summary>Validation Output</summary>
@@ -65,10 +65,74 @@ jobs:
             ```
 
             </details>
-            " > $GITHUB_STEP_SUMMARY
+            EOF
+
+
+  terraform-apply:
+    runs-on: ubuntu-22.04
+    environment: production
+    if: github.ref_name == 'main'
+    name: Plan Terraform changes
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout repository
+
+      - uses: hashicorp/setup-terraform@v2
+        name: Setup Terraform
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_CLOUD_TOKEN }}
+
+      - name: terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: terraform init
+        id: init
+        run: terraform init
+
+      - name: terraform validate
+        id: validate
+        run: terraform validate
+
+      - name: terraform plan
+        id: plan
+        run: terraform plan
+        continue-on-error: true
+        env:
+          TF_VAR_digitalocean_token: "${{ secrets.DIGITALOCEAN_TOKEN }}"
+          TF_VAR_digitalocean_ssh_public_key: "${{ secrets.DIGITALOCEAN_SSH_KEY }}"
+          TF_VAR_digitalocean_spaces_access_key: "${{ secrets.DIGITALOCEAN_SPACES_KEY_ID }}"
+          TF_VAR_digitalocean_spaces_access_key_secret: "${{ secrets.DIGITALOCEAN_SPACES_KEY_SECRET }}"
+
+      - name: Set summary
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        run: |
+            cat > $GITHUB_STEP_SUMMARY << EOF
+            #### Terraform Format and Style 🖌`${{ steps.fmt.outcome }}`
+            #### Terraform Initialization ⚙️`${{ steps.init.outcome }}`
+            #### Terraform Validation 🤖`${{ steps.validate.outcome }}`
+            <details><summary>Validation Output</summary>
+
+            ```
+            ${{ steps.validate.outputs.stdout }}
+            ```
+
+            </details>
+
+            #### Terraform Plan 📖${{ steps.plan.outcome }}
+
+            <details><summary>Show Plan</summary>
+
+            ```
+            ${process.env.PLAN}
+            ```
+
+            </details>
+            EOF
 
       - name: terraform apply
-        if: github.ref_name == 'main'
         run: terraform apply
         env:
             TF_VAR_digitalocean_token: "${{ secrets.DIGITALOCEAN_TOKEN }}"
