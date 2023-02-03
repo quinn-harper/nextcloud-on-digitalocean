@@ -6,6 +6,7 @@ on:
 
 jobs:
   terraform:
+    environment: production
     name: Run Terraform
     steps:
       - uses: actions/checkout@v3
@@ -66,8 +67,7 @@ jobs:
             " > $GITHUB_STEP_SUMMARY
 
       - name: terraform apply
-        if: ${{ github.ref_name == "main" }}
-        environment: production
+        if: github.ref_name == 'main'
         run: terraform apply
         env:
             TF_VAR_digitalocean_token: "${{ secrets.DIGITALOCEAN_TOKEN }}"
