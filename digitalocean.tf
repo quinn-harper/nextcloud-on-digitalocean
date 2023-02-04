@@ -1,6 +1,6 @@
 resource "digitalocean_spaces_bucket" "nextcloud" {
-  name   = "com.sfisoftware.documents"
-  region = "nyc3"
+  name   = "dev.mikolajk.nextcloud"
+  region = "lon1"
 }
 
 resource "digitalocean_project" "mikolajk-dev" {
