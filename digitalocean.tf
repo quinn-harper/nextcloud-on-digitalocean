@@ -30,3 +30,14 @@ resource "digitalocean_ssh_key" "mikolajk-dev" {
   name       = "mikolajk-dev-ssh-key"
   public_key = var.digitalocean_ssh_public_key
 }
+
+resource "digitalocean_domain" "mikolajk-dev" {
+  name = "mikolajk.dev"
+}
+
+resource "digitalocean_record" "nextcloud-mikolajk-dev" {
+  domain = digitalocean_domain.mikolajk-dev.id
+  type   = "A"
+  name   = "www"
+  value  = digitalocean_droplet.server.ipv4_address
+}
