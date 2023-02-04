@@ -12,7 +12,6 @@ resource "digitalocean_project" "mikolajk-dev" {
     digitalocean_droplet.server.urn,
     digitalocean_spaces_bucket.nextcloud.urn,
     digitalocean_domain.mikolajk-dev.urn,
-    digitalocean_record.nextcloud-mikolajk-dev.urn,
   ]
 }
 
