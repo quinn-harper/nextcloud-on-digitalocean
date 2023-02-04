@@ -39,6 +39,6 @@ resource "digitalocean_domain" "mikolajk-dev" {
 resource "digitalocean_record" "nextcloud-mikolajk-dev" {
   domain = digitalocean_domain.mikolajk-dev.id
   type   = "A"
-  name   = "www"
+  name   = "nextcloud"
   value  = digitalocean_droplet.server.ipv4_address
 }
