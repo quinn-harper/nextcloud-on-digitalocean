@@ -10,7 +10,9 @@ resource "digitalocean_project" "mikolajk-dev" {
   environment = "Production"
   resources = [
     digitalocean_droplet.server.urn,
-    digitalocean_spaces_bucket.nextcloud.urn
+    digitalocean_spaces_bucket.nextcloud.urn,
+    digitalocean_domain.mikolajk-dev.urn,
+    digitalocean_record.nextcloud-mikolajk-dev.urn,
   ]
 }
 
