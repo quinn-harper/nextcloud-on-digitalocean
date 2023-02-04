@@ -1,6 +1,6 @@
 resource "digitalocean_spaces_bucket" "nextcloud" {
   name   = "dev.mikolajk.nextcloud"
-  region = "lon1"
+  region = "ams3"
 }
 
 resource "digitalocean_project" "mikolajk-dev" {
