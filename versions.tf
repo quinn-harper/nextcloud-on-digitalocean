@@ -1,4 +1,15 @@
 terraform {
+
+
+  cloud {
+    organization = "mikolajk"
+
+    workspaces {
+      name = "nextcloud-on-digitalocean"
+    }
+  }
+
+
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"

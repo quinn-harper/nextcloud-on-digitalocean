@@ -36,8 +36,20 @@ resource "digitalocean_domain" "mikolajk-dev" {
   name = "mikolajk.dev"
 }
 
+resource "digitalocean_domain" "quinns-studio" {
+  name = "quinns.studio"
+}
+
 resource "digitalocean_record" "nextcloud-mikolajk-dev" {
   domain = digitalocean_domain.mikolajk-dev.id
+  type   = "A"
+  name   = "nextcloud"
+  value  = digitalocean_droplet.server.ipv4_address
+}
+
+
+resource "digitalocean_record" "nextcloud-quinns-studio" {
+  domain = digitalocean_domain.quinns-studio.id
   type   = "A"
   name   = "nextcloud"
   value  = digitalocean_droplet.server.ipv4_address
